@@ -11,12 +11,34 @@ var Matrix = function(data) {
    * Check size on init
    */
   if (data &&
-      data[0].length == data.map(function(row) { return row.length;}).reduce(function(a, b) {
+      data[0].length === data.map(function(row) { return row.length;}).reduce(function(a, b) {
 	return a > b ? a : b;
       })) {
     this.data = data;
   }
 
+  
+  /**
+   * Private methods, awww yissss
+   */
+  this.hidden = new (function() {
+
+    /**
+     * Is array all zeros?
+     */
+    this.isZeroRow = function(row) {
+      for (var i = 0; i < row.length; i++) if (row[i] !== 0) return false;
+      return true;
+    };
+
+  })();
+
+  this.eachRow = function(callback) {
+    for (var i = 0; i < this.height; i++) {
+      callback(this.data[i]);
+    }
+  };
+  
   /**
    * Copy this matrix
    */
@@ -110,39 +132,54 @@ var Matrix = function(data) {
    * Modified from http://rosettacode.org/wiki/Reduced_row_echelon_form#JavaScript
    */
   this.rref = function() {
-    var m = this.copy();
+    var copied = this.copy();
     var lead = 0;
-    for (var r = 0; r < this.height(); r++) {
+    for (var r = 0; r < copied.height(); r++) {
+      if (this.width() <= lead) {
+	return copied;
+      }
       var i = r;
-      while (m.data[i][lead] == 0) {
+      while (copied.data[i][lead] === 0) {
 	i++;
-	if (this.height() == i) {
+	if (copied.height() === i) {
 	  i = r;
 	  lead++;
+	  if (this.width() === lead) {
+	    return copied;
+	  }
 	}
       }
       
-      var temp = m.data[i];
-      m.data[i] = m.data[r];
-      m.data[r] = temp;
+      var temp = copied.data[i];
+      copied.data[i] = copied.data[r];
+      copied.data[r] = temp;
       
-      var val = m.data[r][lead];
-      for (var j = 0; j < this.width(); j++) {
-	m.data[r][j] /= val;
+      var val = copied.data[r][lead];
+      for (var j = 0; j < copied.width(); j++) {
+	copied.data[r][j] /= val;
       }
       
-      for (var i = 0; i < this.height(); i++) {
-	if (i == r) continue;
-	val = m.data[i][lead];
-	for (var j = 0; j < this.width(); j++) {
-	  m.data[i][j] -= val * m.data[r][j];
+      for (var i = 0; i < copied.height(); i++) {
+	if (i === r) continue;
+	val = copied.data[i][lead];
+	for (var j = 0; j < copied.width(); j++) {
+	  copied.data[i][j] -= val * copied.data[r][j];
 	}
       }
       lead++;
     }
-    return new Matrix(m.data);
+    return copied;
   };
 
+
+  /**
+   * is matrix a square?
+   */
+  this.isSquare = function() {
+    return this.height() === this.width() && this.height() >= 1;
+  };
+
+  
   /**
    * Return the inverse if possible
    */
@@ -153,15 +190,55 @@ var Matrix = function(data) {
 
   /**
    * Return the determinant of this
+   * Modified from http://paulbourke.net/miscellaneous/determinant/
    */
   this.det = function() {
+    if (! this.isSquare()) return null;
+    var n = this.height();
     // fill me in!
-    return 0;
+    //double Determinant(double **a,int n)
+    var i = 0;
+    var thisCopy = this.copy();
+    var nextSub;
+    if (n < 1) { 
+      return null;
+    } else if (n === 1) { /* Shouldn't get used */
+      return thisCopy.data[0][0];
+    } else if (n === 2) {
+      return thisCopy.data[0][0] * thisCopy.data[1][1] - thisCopy.data[1][0] * thisCopy.data[0][1];
+    } else {
+      var det = 0;
+      for (var j1 = 0; j1 < n; j1++) {
+	nextSub = Matrix.zero(n - 1);
+        for (i = 1; i < n; i++) {
+          var j2 = 0;
+          for (var j = 0; j < n; j++) {
+            if (j === j1) continue;
+            nextSub.data[i-1][j2] = thisCopy.data[i][j];
+            j2++;
+          }
+        }
+        det += Math.pow(-1.0,1.0+j1+1.0) * thisCopy.data[0][j1] * nextSub.det();
+      }
+    }
+    return det;
   };
 
+  
+
+  /**
+   * Test for linear independence
+   */
   this.isLinearlyIndependent = function() {
-    // fill me in!
-    return false;
+
+    if (this.width() > this.height()) return false;
+    
+    var reduced = this.rref();
+    var zeroRows = reduced.data.map(this.hidden.isZeroRow).reduce(function(a, b) {
+      return a + b ? 1 : 0;
+    }, 0);
+    // shit is real messed up...
+    return ! (zeroRows > 0);
   };
 
   /**
@@ -202,6 +279,20 @@ var Matrix = function(data) {
   
 };
 
+Matrix.zero = function(n) {
+  if (n > 0) {
+    var data = new Array(n);
+    for (var i = 0; i < n; i++) {
+      data[i] = new Array(n);
+      for (var j = 0; j < n; j++) {
+	data[i][j] = 0;
+      }
+    }
+    return new Matrix(data);
+  } else {
+    return null;
+  }
+};
 
 /**
  * Exports
