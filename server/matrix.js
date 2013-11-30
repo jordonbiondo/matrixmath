@@ -180,11 +180,16 @@ var Matrix = function(data) {
   };
 
   
+  this.invertible = function() {
+    //    return this.isSquare() && 
+    return false;
+  };
   /**
    * Return the inverse if possible
    */
   this.inverse = function() {
-    // fill me in!
+    if (! this.isSquare()) return null;
+    
     return {};
   };
 
@@ -289,6 +294,16 @@ Matrix.zero = function(n) {
       }
     }
     return new Matrix(data);
+  } else {
+    return null;
+  }
+};
+
+Matrix.identity = function(n) {
+  if (n > 0) {
+    var m = Matrix.zero(n);
+    for (var i = 0; i < n; i++) m.data[i][i] = 1;
+    return m;
   } else {
     return null;
   }
