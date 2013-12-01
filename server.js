@@ -23,7 +23,13 @@ app.get('/', function(req, res) { res.sendfile(__dirname + '/client/matrixmath.h
 server.listen(process.env.PORT || 3000);
 
 io.sockets.on('connection', function(socket) {
+  
   socket.on('compute', function(matrixData) {
-    socket.emit("matrixFill", new mm.Matrix(matrixData.data).rref());
+    var matrix = new mm.Matrix(matrixData.data);
+    socket.emit("matrixFill", {
+      rref: matrix.rref(),
+      det: matrix.det()
+    });
   });
+  
 });

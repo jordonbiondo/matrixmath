@@ -23,8 +23,9 @@
      
      socket = io.connect();
 
-     socket.on("matrixFill", function(matrix) {
-       return fillMatrixTable(matrix);
+     socket.on("matrixFill", function(data) {
+       alert("Det: " + data.det);
+       return fillMatrixTable(data.rref);
      });
      
 
@@ -76,15 +77,16 @@
       */
      function trySendMatrix() {
        var data = [];
+       var error = false;
        $("#inputMatrix tr").each(function() {
+	 if (error) return false;
 	 var thisRow = [];
 	 var tableData = $(this).find('td input');
 	 if (tableData.length > 0) {
 	   tableData.each(function() {
 	     var val = parseFloat($(this).val());
 	     if (isNaN(val)) {
-	       alertBadInput();
-	       return;
+	       error = true;
 	     } else {
 	       thisRow.push(val);
 	     }
@@ -92,8 +94,13 @@
 	   data.push(thisRow);
 	 }
        });
-       console.log(data);
-       socket.emit("compute", {data: data});
+       
+       if (!error) {
+	 console.log(data);
+	 socket.emit("compute", {data: data});
+       } else {
+	 alert("bad input");
+       }
      }
      
      $(document).ready(function() {
