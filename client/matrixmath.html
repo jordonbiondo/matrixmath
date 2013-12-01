@@ -8,17 +8,123 @@
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.min.css" rel="stylesheet">
     
+    <link href="/client/matrix.css" rel="stylesheet">
+    
+    
     <!-- scripts -->
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+    <script>
+
+     var socket;
+     
+     socket = io.connect();
+
+     socket.on("matrixFill", function(matrix) {
+       return fillMatrixTable(matrix);
+     });
+     
+
+     /**
+      * Fill table with matrix
+      */
+     function fillMatrixTable(matrix) {
+       $("#outputMatrix").empty();
+       $.each(matrix.data, function(i, row) {
+         tRow = $('<tr>', {
+           class: 'matrixRow'
+         });
+         $.each(row, function(j, value) {
+           
+           tRow.append($('<td>', {
+             text: value,
+             class: 'matrixData'
+           }));
+           
+         });
+         $("#outputMatrix").append(tRow);
+       });
+     }
+
+     
+     /**
+      * Resize matrix input
+      */
+     function resizeMatrixInputTable(height, width) {
+       $("#inputMatrix").empty();
+       for (var i = 0; i < height; i++) {
+         tRow = $('<tr>', { class: 'matrixRow' });
+	 for (var j = 0; j < width; j++) {
+           
+           tRow.append($('<td>', {
+	     class: 'matrixData',
+	     html: $("<input>", {
+	       class: "matrixInput",
+               type: "number"
+             })
+	   }));
+	 }
+	 $("#inputMatrix").append(tRow);
+       }
+     }
+
+     /**
+      * 
+      */
+     function trySendMatrix() {
+       var data = [];
+       $("#inputMatrix tr").each(function() {
+	 var thisRow = [];
+	 var tableData = $(this).find('td input');
+	 if (tableData.length > 0) {
+	   tableData.each(function() {
+	     var val = parseFloat($(this).val());
+	     if (isNaN(val)) {
+	       alertBadInput();
+	       return;
+	     } else {
+	       thisRow.push(val);
+	     }
+	   });
+	   data.push(thisRow);
+	 }
+       });
+       console.log(data);
+       socket.emit("compute", {data: data});
+     }
+     
+     $(document).ready(function() {
+       resizeMatrixInputTable(3, 3);
+     });
+     
+     
+     
+    </script>
   </head>
 
   <!------------------------------------------------------------
     -- Body
     -------------------------------------------------------------->
-  <body> 
-    <p>
-      Hello World!
-    </p>
+  <body>
+    <table class=".table" id="matrixFormatTable">
+      <tr>
+	<td>
+	  <table class=".table matrixTable" id="inputMatrix">
+	  </table>
+	</td>
+	<td>
+	  <button onclick="trySendMatrix()"> compute </button>
+        </td>
+	
+	<td>
+	  <table class=".table matrixTable" id="outputMatrix">
+	  </table>
+	</td>
+      </tr>
+    </table>
   </body>
   
 </html>

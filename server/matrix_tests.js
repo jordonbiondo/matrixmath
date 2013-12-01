@@ -160,8 +160,11 @@ tests.def(function(m) { return m.det(); }, [new mm.Matrix([[3, 2, 3],
 tests.def(function(m) { return m.det(); }, [new mm.Matrix([[3, 2, 3],
                                                            [2, 23, 1]])], null);
 
-// tests.def(function(m) {return m.isLinearlyIndependent();},
-// 	  [new mm.Matrix([[-4, -3, 0], [0, -1, 4], [1, 0, 3], [5, 4, 6]])], true);
+tests.def(function(m) {return m.isLinearlyIndependent();},
+ 	  [new mm.Matrix([[-4, -3, 0, 0],
+			  [ 0, -1, 4, 0],
+			  [ 1,  0, 3, 0],
+			  [ 5,  4, 6, 0]])], true);
 
 
 // tests.def(function(m) {return m.isLinearlyIndependent();},
@@ -184,3 +187,10 @@ tests.def(function(m) { return m.det(); }, [new mm.Matrix([[1, 2, 3],
  * Run the tests
  */
 tests.run();
+console.log(new mm.Matrix([[-4, -3, 0, 0],
+			   [ 11, -1, 4, 0],
+			   [ 1,  12, 3, 0]]).numberOfSolutions());
+
+console.log(new mm.Matrix([[1, 1, 1],
+			   [1, 1, 2],
+			   [1, 2, 1]]).rref().toString());

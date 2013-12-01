@@ -1,4 +1,4 @@
-
+var _ = require('underscore');
 
 /**
  * Create a new Matrix, data must be a 2D num array.
@@ -31,13 +31,16 @@ var Matrix = function(data) {
       return true;
     };
 
+    /**
+     * Is row: 0 ... 0 b ?
+     */
+    this.isNoSolutionRow = function(row) {
+      for (var i  = 0; i < row.length -1 ; i++) if (row[i] !== 0) return false;
+      return row[row.length -1] !== 0;
+    };
+
   })();
 
-  this.eachRow = function(callback) {
-    for (var i = 0; i < this.height; i++) {
-      callback(this.data[i]);
-    }
-  };
   
   /**
    * Copy this matrix
@@ -178,12 +181,36 @@ var Matrix = function(data) {
   this.isSquare = function() {
     return this.height() === this.width() && this.height() >= 1;
   };
-
+  
+  /**
+   * Is this matrix row equivalent to the other 
+   */
+  this.isRowEquivalent = function(other) {
+    if (!this.size().equals(other.size)) return false;
+    else {
+      return this.rref().equals(other.rref());
+    }
+  };
   
   this.invertible = function() {
-    //    return this.isSquare() && 
+    if (! this.isSquare()) return false;
+    var reduced = this.rref();
+    if (! reduced.equals(Matrix.identity(this.height))) return false;
+    // c. A has n pivot positions. -- covered by above
+    
+    // d. TheequationAx=0hasonlythetrivialsolution.
+    // e. The columns of A form a linearly independent set.
+    // f. The linear transformation x 􏰜→ Ax is one-to-one.
+    // g. TheequationAx=bhasatleastonesolutionforeachbinRn.
+    // h. The columns of A span Rn .
+    // i. The linear transformation x 􏰜→ Ax maps Rn onto Rn.
+    // j. Thereisann×nmatrixCsuchthatCA=I.
+    // k. Thereisann×nmatrixDsuchthatAD=I.
+    // l. AT is an invertible matrix.
     return false;
   };
+
+
   /**
    * Return the inverse if possible
    */
@@ -229,69 +256,93 @@ var Matrix = function(data) {
     return det;
   };
 
-  
+
+  /**
+   * Get span, fill me in
+   */
+  this.span = function() {
+    if (this.isSquare()) {
+      if (this.rref().equals(Matrix.identity(this.height()))) {
+	return "R" + this.height();
+      }
+    }
+  };
 
   /**
    * Test for linear independence
    */
   this.isLinearlyIndependent = function() {
 
+    // EX: if we have more than n vectors of Rn we now they are not lin ind
     if (this.width() > this.height()) return false;
-    
+    // get the rref form
     var reduced = this.rref();
-    var zeroRows = reduced.data.map(this.hidden.isZeroRow).reduce(function(a, b) {
-      return a + b ? 1 : 0;
-    }, 0);
-    // shit is real messed up...
+    
+    // if the matrix is a square, it is lin ind iff it reduces to identity
+    if (reduced.isSquare()) {
+      return reduced.equals(Matrix.identity(reduced.height()));
+    }
+    
+    // count the number of rows containing only 0
+    var zeroRows = reduced.data
+	  .map(this.hidden.isZeroRow)
+	  .reduce(function(a, b) {
+	    return a + (b ? 1 : 0);
+	  }, 0);
+
     return ! (zeroRows > 0);
   };
 
+  
   /**
-   * Pretty Print Matrix if specified form, vector, matrix, or algebraic
+   * Number of solutions for this as if it was an augmented matrix
    */
-  this.toString = function(form) {
+  this.numberOfSolutions = function() {
+    // assuming this is set up as an augmented matrix
+    // get the rref form
+    var reduced = this.rref();
+    
+    // count the number of rows matching [0...0 b], if more than 0, return 0
+    if (_.filter(reduced.data, this.hidden.isNoSolutionRow).length > 0) return 0;
+    // else count the number of rows matching [0 ... 0], if more than 0, return infinity
+    else if (_.filter(reduced.data, this.hidden.isZeroRow).length > 0) return Infinity;
+    // else there is a unique solution!
+    else return 1;
+  };
+  
+  
+  /**
+   * Pretty Print Matrix 
+   */
+  this.toString = function() {
     if (!this.data) return "[Null Matrix]";
-
-    if (form === "algebraic")  {
-      // fill me in!
-      return "[[algebraic form]]";
-    } else if (form === "vector") {
-      // fill me in!
-      return "[[vector form]]";
-    } else if (! form || form === "matrix") {
-      
-      var value = "[";
-      for (var i = 0; i < this.data.length; i++) {
-	value += "[";
-	for (var j = 0; j < this.data[0].length; j++) {
-	  value += this.data[i][j];
-	  if (j != this.data[0].length - 1) value += ", ";
-	}
-	if (i != this.data.length - 1) {
-	  value += "]\n ";
-	} else {
-	  value += "]]";
-	}
+    var value = "[";
+    for (var i = 0; i < this.data.length; i++) {
+      value += "[";
+      for (var j = 0; j < this.data[0].length; j++) {
+	value += this.data[i][j];
+	if (j != this.data[0].length - 1) value += ", ";
       }
-      return value;
-      
-    } else {
-      
-      return "unknown form: " + form + "\n" + this.toString("matrix");
-      
+      if (i != this.data.length - 1) {
+	value += "]\n ";
+      } else {
+	value += "]]";
+      }
     }
+    return value;
   };
   
 };
 
+/**
+ * Returns a zero matrix of size n
+ */
 Matrix.zero = function(n) {
   if (n > 0) {
     var data = new Array(n);
     for (var i = 0; i < n; i++) {
       data[i] = new Array(n);
-      for (var j = 0; j < n; j++) {
-	data[i][j] = 0;
-      }
+      for (var j = 0; j < n; j++) data[i][j] = 0;
     }
     return new Matrix(data);
   } else {
@@ -299,6 +350,9 @@ Matrix.zero = function(n) {
   }
 };
 
+/**
+ * Return an identity matrix of size N
+ */
 Matrix.identity = function(n) {
   if (n > 0) {
     var m = Matrix.zero(n);

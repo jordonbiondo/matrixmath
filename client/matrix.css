@@ -1,0 +1,21 @@
+
+.matrixTable {
+    margin: 10px;
+    border-color: black;
+    border-style: solid;
+    border-width: 2px;
+    border-top: none;
+    border-bottom: none;
+	
+}
+
+.matrixInput {
+    width: 100%;
+}
+.matrixData {
+    padding: 10px;
+}
+.matrixData input {
+    width: 50px;
+}
+
