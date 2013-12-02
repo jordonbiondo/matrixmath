@@ -10,7 +10,7 @@ body {
 
 #sizeForm {
     text-align: center;
-    width:80%;
+    width: 100%;
     margin-left: auto;
     margin-right: auto;
     
@@ -36,6 +36,7 @@ hr {
 /*      margin: 1em 0;  */
 /*      padding: 0;  */
 /* } */
+
 .matrixTable {
     margin-left:auto;
     margin-right:auto;
@@ -46,19 +47,14 @@ hr {
     border-bottom: none;
 }
 #detArea {
-    margin-left:auto;
-    margin-right:auto;
     text-align:center;
-    padding-left: 10px;
-    padding-right: 10px;
+    /* padding-left: 10px; */
+    /* padding-right: 10px; */
 }
 
-.table tr  {
-    border-top: none;
-}
 
 #computeButtonDiv {
-    width: 200px;
+    
     text-align: center;
 }
 #computeButton {
@@ -66,25 +62,40 @@ hr {
     /* margin-right: auto; */
 }
 
-#sizeRow {
-    border-bottom: solid;
-    border-color: black;
-    border-width: 1px;
-}
-#resizeArea {
-    padding: 10px;
-    text-align: center;
-    margin: 10px;
-    margin-left:auto;
-    margin-right:auto;
-}
-.matrixInput {
+#sizeForm .matrixInput {
     width: 70px;
 }
 .matrixData {
     padding: 10px;
 }
 .matrixData input {
-    
+    min-width: 70px;
 }
 
+/* griddy */
+
+.grid {
+    @include clearfix;
+    margin: 1em 1em;
+    
+}
+.grid-unit {
+    /* box-sizing: border-box; */
+    /* display: block; */
+    float: left;
+    padding: 0 .5em 1.5em;
+    width: 100%;
+}
+.layout .grid-unit {
+    width: 20%;
+}
+@media screen and (min-width: 40em) {
+    .home-features .grid-unit {
+        width: 50%;
+    }
+}
+@media screen and (min-width: 60em) {
+    .home-features .grid-unit {
+        width: 25%;
+    }
+}

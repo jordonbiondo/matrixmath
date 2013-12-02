@@ -1,18 +1,18 @@
 <html lang="en">
-  
+
   <!------------------------------------------------------------
-    -- Head
-    -------------------------------------------------------------->
+  -- Head
+  -------------------------------------------------------------->
   <head>
     <!-- links -->
     <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.min.css" rel="stylesheet">
-    
+
     <link href="/client/matrix.css" rel="stylesheet">
-    
-    
+
+
     <!-- scripts -->
-    
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
@@ -20,23 +20,23 @@
     <script>
 
      var defaultMatrixWidth = 3;
-     var defaultMatrixHeight = 3;
-     
-     var socket;
-     
-     socket = io.connect();
+       var defaultMatrixHeight = 3;
 
-     socket.on("matrixFill", function(data) {
-       $("#detValue").val((data.det) ? data.det : "Not possible");
-       fillMatrixTable("#rrefMatrix", data.rref);
-       if (data.inverse) {
-	 fillMatrixTable("#inverseMatrix", data.inverse);
+       var socket;
+
+       socket = io.connect();
+
+       socket.on("matrixFill", function(data) {
+	 $("#detValue").val((data.det) ? data.det : "Not possible");
+	 fillMatrixTable("#rrefMatrix", data.rref);
+	 if (data.inverse) {
+	   fillMatrixTable("#inverseMatrix", data.inverse);
        } else {
-	 spoofFillMatrix("#inverseMatrix", data.size.height, data.size.width);
+	   spoofFillMatrix("#inverseMatrix", data.size.height, data.size.width);
        }
-       
+
      });
-     
+
 
 
      /**
@@ -49,20 +49,20 @@
            class: 'matrixRow'
          });
          $.each(row, function(j, value) {
-           
+
            tRow.append($('<td>', {
-             text: (parseFloat(value)) ? (Math.round(parseFloat(value*1000)) * .001) : value,
+             text: (parseFloat(value)) ? (Math.round(parseFloat(value*1000)) / 1000) : value,
              class: 'matrixData'
            }));
-           
+
          });
          $(table).append(tRow);
        });
      }
 
      /**
-      * Fill output with empty data
-      */
+     * Fill output with empty data
+     */
      function spoofFillMatrix(table, n, m) {
        fillMatrixTable(table, {
 	 data: (function() {
@@ -77,8 +77,8 @@
 	   return result;
 	 })()
        });
-     } 
-     
+     }
+
      /**
       * Resize matrix input
       */
@@ -87,7 +87,7 @@
        for (var i = 0; i < height; i++) {
          tRow = $('<tr>', { class: 'matrixRow' });
 	 for (var j = 0; j < width; j++) {
-           
+
            tRow.append($('<td>', {
 	     class: 'matrixData',
 	     html: $("<input>", {
@@ -139,7 +139,7 @@
 	   data.push(thisRow);
 	 }
        });
-       
+
        if (!error) {
 	 socket.emit("compute", {data: data});
        } else {
@@ -147,7 +147,7 @@
 	 $('#').popover(options)
        }
      }
-     
+
      $(document).ready(function() {
        resizeMatrixInputTable(defaultMatrixHeight, defaultMatrixWidth);
 	 $("#sizeForm").submit(function() {
@@ -158,19 +158,19 @@
            trySendMatrix();
            return false;
        });
-	 
+
      });
-     
-     
-     
+
+
+
     </script>
   </head>
 
   <!------------------------------------------------------------
-    -- Body
-    -------------------------------------------------------------->
+  -- Body
+  -------------------------------------------------------------->
   <body>
-    
+
     <div class="page-header">
       <h1>Matrix Analyser <small>Computers the RREF, inverse, and determinant of any n&times;m matrix</small></h1>
     </div>
@@ -190,41 +190,51 @@
                 class=".btn btn btn-primary"
                 id="matrixResize"> Resize</button>
       </form>
-      <hr class="dark-hr"/>
-      <table class="" id="matrixFormatTable">
-	<tr>
-	<td>
-	  <form id="inputMatrixForm">
-	    <p class="text-center">Input Data</p>
-	    <table class="matrixTable" id="inputMatrix">
-	    </table>
-	  </form>
-	</td>
-	<td>
-	  <p class="text-center">RREF</p>
-	  <table class="matrixTable" id="rrefMatrix">
-	  </table>
-	</td>
-	<td>
-	  <p class="text-center">Inverse</p>
-          <table class="matrixTable" id="inverseMatrix">
+    </div>
+    
+    <div class="well table-responsive">
+      <table id="matrixFormatTable">
+      <tr>
+	<td class="grid-unit">
+	<form id="inputMatrixForm">
+          <p class="text-center">Input Data</p>
+          <table class="matrixTable" id="inputMatrix">
           </table>
-        </td>
-	<td id="detArea">
-	  <p class="text-center">Determinant</p>
-	  <input class="form-control text-center"
-		 id="detValue"
-		 type="text"
-		 readonly="readonly"/>
-        </td>
-	<td>
-          <div id="computeButtonDiv">
-            <button id="computeButton" class="btn btn-primary" onclick="trySendMatrix()">Compute</button>
-          </div>
-        </td>
+	  <button type="submit" hidden="true"/>
+        </form>
+      </td>
+      
+      <td class="grid-unit">
+	<p class="text-center">RREF</p>
+        <table class="matrixTable" id="rrefMatrix">
+        </table>
+      </td>
+      
+      <td class="grid-unit">
+	<!-- feature 3 -->
+	<p class="text-center">Inverse</p>
+        <table class="matrixTable" id="inverseMatrix">
+        </table>
+      </td>
+      
+      <td class="grid-unit">
+	<!-- feature 4 -->
+	<p class="text-center">Determinant</p>
+        <input class="form-control text-center"
+               id="detValue"
+               type="number"
+               readonly="readonly"/>
+      </td>
+      
+      <td class="grid-unit">
+	<!-- feature 5 -->
+	<div id="computeButtonDiv">
+          <button id="computeButton" class="btn btn-primary" onclick="trySendMatrix()">Compute</button>
+        </div>
+      </td>
       </tr>
     </table>
     </div>
   </body>
-  
+
 </html>
