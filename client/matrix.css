@@ -71,9 +71,16 @@ hr {
 .matrixData input {
     min-width: 70px;
 }
-
+.shadow {
+   -moz-box-shadow:    inset 0 0 3px #000000;
+   -webkit-box-shadow: inset 0 0 3px #000000;
+   box-shadow:         inset 0 0 3px #000000;
+}
 /* griddy */
 
+.well {
+    background-color: rgba(244, 244, 244, .3);
+}
 .grid {
     @include clearfix;
     margin: 1em 1em;
