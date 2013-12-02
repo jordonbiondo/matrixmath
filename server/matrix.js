@@ -278,8 +278,9 @@ var Matrix = function(data) {
         }
         det += Math.pow(-1.0,1.0+j1+1.0) * thisCopy.data[0][j1] * nextSub.det();
       }
+      return det;
     }
-    return det;
+    
   };
 
 
