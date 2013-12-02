@@ -19,21 +19,31 @@
 
     <script>
 
+     var defaultMatrixWidth = 3;
+     var defaultMatrixHeight = 3;
+     
      var socket;
      
      socket = io.connect();
 
      socket.on("matrixFill", function(data) {
-       alert("Det: " + data.det);
-       return fillMatrixTable(data.rref);
+       $("#detValue").val((data.det) ? data.det : "Not possible");
+       fillMatrixTable("#rrefMatrix", data.rref);
+       if (data.inverse) {
+	 fillMatrixTable("#inverseMatrix", data.inverse);
+       } else {
+	 spoofFillMatrix("#inverseMatrix", data.size.height, data.size.width);
+       }
+       
      });
      
+
 
      /**
       * Fill table with matrix
       */
-     function fillMatrixTable(matrix) {
-       $("#outputMatrix").empty();
+     function fillMatrixTable(table, matrix) {
+       $(table).empty();
        $.each(matrix.data, function(i, row) {
          tRow = $('<tr>', {
            class: 'matrixRow'
@@ -41,15 +51,33 @@
          $.each(row, function(j, value) {
            
            tRow.append($('<td>', {
-             text: value,
+             text: (parseFloat(value)) ? (Math.round(parseFloat(value*1000)) * .001) : value,
              class: 'matrixData'
            }));
            
          });
-         $("#outputMatrix").append(tRow);
+         $(table).append(tRow);
        });
      }
 
+     /**
+      * Fill output with empty data
+      */
+     function spoofFillMatrix(table, n, m) {
+       fillMatrixTable(table, {
+	 data: (function() {
+	   var result = new Array(n);
+	   for (var i = 0; i < n; i++) {
+	     var row = new Array(m);
+	     for (var j = 0; j < m; j++) {
+	       row[j] = "?";
+	     }
+	     result[i] = row;
+	   }
+	   return result;
+	 })()
+       });
+     } 
      
      /**
       * Resize matrix input
@@ -63,17 +91,34 @@
            tRow.append($('<td>', {
 	     class: 'matrixData',
 	     html: $("<input>", {
-	       class: "matrixInput",
+	       class: "matrixInput form-control",
                type: "number"
              })
 	   }));
 	 }
 	 $("#inputMatrix").append(tRow);
        }
+       spoofFillMatrix("#rrefMatrix", height, width);
+       spoofFillMatrix("#inverseMatrix", height, width);
      }
 
      /**
-      * 
+      * Try resizing input matrix
+      */
+     function tryResizeInput() {
+       var n = parseInt($("#matrixHeightInput").val());
+       var m = parseInt($("#matrixWidthInput").val());
+       if ((!isNaN(n)) &&
+	   (!isNaN(m)) &&
+	   m > 0 &&
+	   n > 0) {
+	 resizeMatrixInputTable(n, m);
+       } else {
+	 console.log("error resizing");
+       }
+     }
+     /**
+      * Get input and send if OK
       */
      function trySendMatrix() {
        var data = [];
@@ -96,15 +141,24 @@
        });
        
        if (!error) {
-	 console.log(data);
 	 socket.emit("compute", {data: data});
        } else {
 	 alert("bad input");
+	 $('#').popover(options)
        }
      }
      
      $(document).ready(function() {
-       resizeMatrixInputTable(3, 3);
+       resizeMatrixInputTable(defaultMatrixHeight, defaultMatrixWidth);
+	 $("#sizeForm").submit(function() {
+	   tryResizeInput();
+	   return false;
+       });
+         $("#inputMatrixForm").submit(function() {
+           trySendMatrix();
+           return false;
+       });
+	 
      });
      
      
@@ -116,22 +170,61 @@
     -- Body
     -------------------------------------------------------------->
   <body>
-    <table class=".table" id="matrixFormatTable">
-      <tr>
+    
+    <div class="page-header">
+      <h1>Matrix Analyser <small>Computers the RREF, inverse, and determinant of any n&times;m matrix</small></h1>
+    </div>
+    <div class="well">
+      <form id="sizeForm" class="form-inline">
+        size:
+        <input id="matrixHeightInput"
+               class="matrixInput form-control"
+               placeholder="3"
+               type="number">
+        &times;
+        <input id="matrixWidthInput"
+               class="matrixInput form-control "
+               placeholder="3"
+               type="number">
+        <button type="submit"
+                class=".btn btn btn-primary"
+                id="matrixResize"> Resize</button>
+      </form>
+      <hr class="dark-hr"/>
+      <table class="" id="matrixFormatTable">
+	<tr>
 	<td>
-	  <table class=".table matrixTable" id="inputMatrix">
+	  <form id="inputMatrixForm">
+	    <p class="text-center">Input Data</p>
+	    <table class="matrixTable" id="inputMatrix">
+	    </table>
+	  </form>
+	</td>
+	<td>
+	  <p class="text-center">RREF</p>
+	  <table class="matrixTable" id="rrefMatrix">
 	  </table>
 	</td>
 	<td>
-	  <button onclick="trySendMatrix()"> compute </button>
+	  <p class="text-center">Inverse</p>
+          <table class="matrixTable" id="inverseMatrix">
+          </table>
         </td>
-	
+	<td id="detArea">
+	  <p class="text-center">Determinant</p>
+	  <input class="form-control text-center"
+		 id="detValue"
+		 type="text"
+		 readonly="readonly"/>
+        </td>
 	<td>
-	  <table class=".table matrixTable" id="outputMatrix">
-	  </table>
-	</td>
+          <div id="computeButtonDiv">
+            <button id="computeButton" class="btn btn-primary" onclick="trySendMatrix()">Compute</button>
+          </div>
+        </td>
       </tr>
     </table>
+    </div>
   </body>
   
 </html>

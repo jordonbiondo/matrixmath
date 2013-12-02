@@ -56,7 +56,8 @@ var Matrix = function(data) {
    */
   this.equals = function(other) {
     var context = this;
-    return this.size().equals(other.size()) &&
+    return this.height() === other.height() &&
+      this.width() === other.width() &&
       (function() {
 	for (var i = 0; i < context.height(); i++) {
 	  for (var j = 0; j < context.height(); j++) {
@@ -118,7 +119,17 @@ var Matrix = function(data) {
    * Return this matrix + otherMatrix
    */
   this.added = function(other) {
-    
+    if (!this.size().equals(other.size())) {
+      return null; // matrices must be the same size
+    } else {
+      var result = this.copy();
+      for (var i = 0; i < this.height(); i++) {
+	for (var j = 0; j < this.height(); j++) {
+	  result.data[i][j] = this.data[i][j] + other.data[i][j];
+	}
+      }
+      return result;
+    }
   };
   
   
@@ -126,7 +137,15 @@ var Matrix = function(data) {
    * Return this matrix + negative otherMatrix
    */
   this.subbed = function(other) {
-    return this.added(other.negated);
+    return this.added(other.negated());
+  };
+
+  /**
+   * Returns this matrix * other
+   */
+  this.multiplied = function(other) {
+    if (this.width() != other.height()) return null;
+    return Infinity;
   };
 
   
@@ -195,7 +214,7 @@ var Matrix = function(data) {
   this.invertible = function() {
     if (! this.isSquare()) return false;
     var reduced = this.rref();
-    if (! reduced.equals(Matrix.identity(this.height))) return false;
+    if (! reduced.equals(Matrix.identity(this.height()))) return false;
     // c. A has n pivot positions. -- covered by above
     
     // d. TheequationAx=0hasonlythetrivialsolution.
@@ -207,7 +226,7 @@ var Matrix = function(data) {
     // j. Thereisann×nmatrixCsuchthatCA=I.
     // k. Thereisann×nmatrixDsuchthatAD=I.
     // l. AT is an invertible matrix.
-    return false;
+    return true;
   };
 
 
@@ -215,9 +234,16 @@ var Matrix = function(data) {
    * Return the inverse if possible
    */
   this.inverse = function() {
-    if (! this.isSquare()) return null;
-    
-    return {};
+    if (! this.invertible()) return null;
+    var origSize = this.height();
+    var comp = this.copy();
+    var ident = Matrix.identity(origSize);
+    for (var i = 0; i < origSize; i++) {
+      comp.data[i] = comp.data[i].concat(ident.data[i]);
+    }
+    return new Matrix(comp.rref().data.map(function(row) {
+      return row.slice(origSize);
+    }));
   };
 
   /**
@@ -266,6 +292,7 @@ var Matrix = function(data) {
 	return "R" + this.height();
       }
     }
+    return "foobar";
   };
 
   /**
@@ -337,12 +364,13 @@ var Matrix = function(data) {
 /**
  * Returns a zero matrix of size n
  */
-Matrix.zero = function(n) {
+Matrix.zero = function(n, m) {
+  if (!m) m = n;
   if (n > 0) {
     var data = new Array(n);
     for (var i = 0; i < n; i++) {
-      data[i] = new Array(n);
-      for (var j = 0; j < n; j++) data[i][j] = 0;
+      data[i] = new Array(m);
+      for (var j = 0; j < m; j++) data[i][j] = 0;
     }
     return new Matrix(data);
   } else {

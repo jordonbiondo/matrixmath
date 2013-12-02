@@ -27,8 +27,10 @@ io.sockets.on('connection', function(socket) {
   socket.on('compute', function(matrixData) {
     var matrix = new mm.Matrix(matrixData.data);
     socket.emit("matrixFill", {
+      size: matrix.size(),
       rref: matrix.rref(),
-      det: matrix.det()
+      det: matrix.det(),
+      inverse: matrix.inverse()
     });
   });
   

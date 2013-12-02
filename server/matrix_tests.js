@@ -90,6 +90,29 @@ tests.def(matrixEqlTest, [new mm.Matrix([[1, 1, 1],
 			  new mm.Matrix([[-1, -1, -1],
 					 [-2, -2, -2]])], true);
 
+
+
+// added test
+tests.def(matrixEqlTest, [new mm.Matrix([[1, 1, 1],
+					 [2, 2, 2]])
+			  .added(
+			    new mm.Matrix([[1, 1, 1],
+                                           [2, 2, 2]])),
+			  
+			  new mm.Matrix([[2, 2, 2],
+					 [4, 4, 4]])], true);
+
+tests.def(matrixEqlTest, [new mm.Matrix([[1, 1, 1],
+                                         [2, 2, 2]])
+                          .subbed(
+                            new mm.Matrix([[1, 1, 1],
+                                           [2, 2, 2]])),
+                          
+                          new mm.Matrix([[0, 0, 0],
+                                         [0, 0, 0]])], true);
+
+
+
 // test squareness bad
 tests.def(function(m) { return m.isSquare(); },
 	  [new mm.Matrix([[1, 1, 1],
@@ -187,10 +210,6 @@ tests.def(function(m) { return m.det(); }, [new mm.Matrix([[1, 2, 3],
  * Run the tests
  */
 tests.run();
-console.log(new mm.Matrix([[-4, -3, 0, 0],
-			   [ 11, -1, 4, 0],
-			   [ 1,  12, 3, 0]]).numberOfSolutions());
 
-console.log(new mm.Matrix([[1, 1, 1],
-			   [1, 1, 2],
-			   [1, 2, 1]]).rref().toString());
+console.log(new mm.Matrix([[1, 2, 3], [1, 5, 6], [9, 8, 7]]).toString());
+console.log(new mm.Matrix([[1, 2, 3], [1, 5, 6], [9, 8, 7]]).inverse().toString());

@@ -1,21 +1,90 @@
+#titleDiv {
+    
+}
 
+body {
+    max-width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#sizeForm {
+    text-align: center;
+    width:80%;
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+#matrixFormatTable {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 90%;
+}
+
+hr {
+    border: none;
+    /* top    */ border-top: 1px solid #ccc;
+    /* middle */ background-color: #ddd; color: #ddd;
+    height: 1px;
+    *height: 2px; /* IE6+7 need the total height */
+}
+/* .dark-hr {  */
+/*     display: block;  */
+/*      height: 1px; */
+/*      border: 0;  */
+/*      border-top: 1px solid #323223; */
+/*      margin: 1em 0;  */
+/*      padding: 0;  */
+/* } */
 .matrixTable {
-    margin: 10px;
-    border-color: black;
+    margin-left:auto;
+    margin-right:auto;
+    border-color: gray;
     border-style: solid;
     border-width: 2px;
     border-top: none;
     border-bottom: none;
-	
+}
+#detArea {
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
+.table tr  {
+    border-top: none;
+}
+
+#computeButtonDiv {
+    width: 200px;
+    text-align: center;
+}
+#computeButton {
+    /* margin-left:  auto; */
+    /* margin-right: auto; */
+}
+
+#sizeRow {
+    border-bottom: solid;
+    border-color: black;
+    border-width: 1px;
+}
+#resizeArea {
+    padding: 10px;
+    text-align: center;
+    margin: 10px;
+    margin-left:auto;
+    margin-right:auto;
+}
 .matrixInput {
-    width: 100%;
+    width: 70px;
 }
 .matrixData {
     padding: 10px;
 }
 .matrixData input {
-    width: 50px;
+    
 }
 
