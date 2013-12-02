@@ -97,6 +97,7 @@
       * Resize matrix input
       */
      function resizeMatrixInputTable(height, width) {
+       var oldData = getInputData();
        $("#inputMatrix").empty();
        for (var i = 0; i < height; i++) {
          tRow = $('<tr>', { class: 'matrixRow' });
@@ -114,6 +115,7 @@
        }
        spoofFillMatrix("#rrefMatrix", height, width);
        spoofFillMatrix("#inverseMatrix", height, width);
+       fillInputMatrix(oldData);
      }
 
      /**
@@ -130,6 +132,18 @@
        } else {
 	 console.log("error resizing");
        }
+     }
+
+     function fillInputMatrix(data) {
+       $("#inputMatrix tr").each(function(i) {
+         var thisRow = [];
+         var tableData = $(this).find('td input');
+         if (tableData.length > 0) {
+           tableData.each(function(j, elm) {
+             elm.value = ((data[i] ? data[i][j] : null));
+           });
+         }
+       });
      }
 
      function addMatrixInfoLine(message, good) {
@@ -156,30 +170,41 @@
        
        info.append(item);
      }
+
+     /**
+      * Get input matrix
+      */
+     function getInputData() {
+       var data = [];
+       var error = false;
+       $("#inputMatrix tr").each(function() {
+         if (error) return false;
+         var thisRow = [];
+         var tableData = $(this).find('td input');
+         if (tableData.length > 0) {
+           tableData.each(function() {
+             var val = parseFloat($(this).val());
+             if (isNaN(val)) {
+               error = true;
+             } else {
+               thisRow.push(val);
+             }
+           });
+           data.push(thisRow);
+         }
+       });
+       if (error) return null;
+       return data;
+     }
+
      
      /**
       * Get input and send if OK
       */
      function trySendMatrix() {
-       var data = [];
-       var error = false;
-       $("#inputMatrix tr").each(function() {
-	 if (error) return false;
-	 var thisRow = [];
-	 var tableData = $(this).find('td input');
-	 if (tableData.length > 0) {
-	   tableData.each(function() {
-	     var val = parseFloat($(this).val());
-	     if (isNaN(val)) {
-	       error = true;
-	     } else {
-	       thisRow.push(val);
-	     }
-	   });
-	   data.push(thisRow);
-	 }
-       });
-
+       var data = getInputData()
+       var error = data === null;
+       
        if (!error) {
 	 socket.emit("compute", {data: data});
        } else {
@@ -309,7 +334,7 @@
       <div class="container">
         <p class= "muted credit"> Authors:
           <a href="http://www.github.com/jordonbiondo">Jordon Biondo</a>,
-          <a href="https://github.com/barrebre">Brett Barret</a></p>
+          <a href="https://github.com/barrebre">Brett Barrett</a></p>
       </div>
     </div>
   </body>
