@@ -26,11 +26,36 @@ io.sockets.on('connection', function(socket) {
   
   socket.on('compute', function(matrixData) {
     var matrix = new mm.Matrix(matrixData.data);
+    var rref = matrix.rref();
+    
+    var solutions = rref.numberOfSolutions();
+    var solutionsObj = {
+      value: solutions,
+      text: "As an augmented matrix, this system has " + (function(count) {
+	if (count === Infinity) return "infinitely many solutions.";
+	else if (count === 0) return "no solution.";
+	else return "a unique solution.";
+      })(solutions)
+    };
+    
+    var consistent = {
+      value: (solutions !== 0),
+      text: "As an augmented matrix, this system is " +
+	((solutions !== 0) ? "consistent" : "inconsistent") + "."
+    };
+    
+    var isLinInd = rref.isLinearlyIndependent(function(error) {
+      return error;
+    });
+    
     socket.emit("matrixFill", {
       size: matrix.size(),
-      rref: matrix.rref(),
+      rref: rref,
       det: matrix.det(),
-      inverse: matrix.inverse()
+      inverse: matrix.inverse(),
+      linInd: isLinInd,
+      solutions: solutionsObj,
+      consistent: consistent
     });
   });
   

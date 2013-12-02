@@ -211,6 +211,22 @@ var Matrix = function(data) {
     }
   };
   
+
+  /**
+   * Augmented, add a zero column to the end
+   */
+  this.augmented = function() {
+    var copy = this.copy();
+    copy.data.map(function(row) {
+      return row.concat([0]);
+    });
+    return copy;
+  };
+
+  
+  /**
+   * is this matrix invertible
+   */
   this.invertible = function() {
     if (! this.isSquare()) return false;
     var reduced = this.rref();
@@ -246,6 +262,7 @@ var Matrix = function(data) {
     }));
   };
 
+  
   /**
    * Return the determinant of this
    * Modified from http://paulbourke.net/miscellaneous/determinant/
@@ -299,26 +316,36 @@ var Matrix = function(data) {
   /**
    * Test for linear independence
    */
-  this.isLinearlyIndependent = function() {
+  this.isLinearlyIndependent = function(callback) {
 
     // EX: if we have more than n vectors of Rn we now they are not lin ind
-    if (this.width() > this.height()) return false;
+    if (this.width() > this.height()) return callback("Vectors are in R" + this.height() + 
+						      ", only a collection of " + this.height() +
+						      " vectors can be linearly independent, " +
+						      "but you have " + this.width() +
+						      ". Therefore we know that at least one vector " +
+						      "can be made by a linear combination " +
+						      "of the others.");
+      
+      
     // get the rref form
     var reduced = this.rref();
-    
     // if the matrix is a square, it is lin ind iff it reduces to identity
     if (reduced.isSquare()) {
-      return reduced.equals(Matrix.identity(reduced.height()));
+      if (reduced.equals(Matrix.identity(reduced.height()))) {
+	return true;
+      } else {
+	return callback("At least one vector can be made by a linear combination of the others.");
+      }
     }
     
     // count the number of rows containing only 0
-    var zeroRows = reduced.data
-	  .map(this.hidden.isZeroRow)
-	  .reduce(function(a, b) {
-	    return a + (b ? 1 : 0);
-	  }, 0);
-
-    return ! (zeroRows > 0);
+      var zeroRows = _.filter(reduced.data, this.hidden.isZeroRow).length;
+      if (zeroRows > (reduced.height() - this.width())) {
+	return callback("At least one vector can be made by a linear combination of the others.");
+      } else {
+	return true;
+      }
   };
 
   

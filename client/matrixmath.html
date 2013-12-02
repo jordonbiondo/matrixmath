@@ -27,14 +27,28 @@
        socket = io.connect();
 
        socket.on("matrixFill", function(data) {
+	 $("#matrixInfo").empty();
 	 $("#detValue").val((data.det) ? data.det : "Not possible");
 	 fillMatrixTable("#rrefMatrix", data.rref);
+	 if (data.linInd === true) {
+	   addMatrixInfoLine("This matrix is linearly independent!", true);
+       } else {
+	   addMatrixInfoLine("this matrix is not linearly independent. " + data.linInd, false);
+       }
 	 if (data.inverse) {
+	   addMatrixInfoLine("This matrix is invertible because it " +
+			     "reduces to the identity matrix!", true);
+	   
 	   fillMatrixTable("#inverseMatrix", data.inverse);
        } else {
+	   addMatrixInfoLine("This matrix is not invertible as it " +
+			     "does not reduce to an identity matrix.", false);
 	   spoofFillMatrix("#inverseMatrix", data.size.height, data.size.width);
        }
 
+	 addMatrixInfoLine(data.solutions.text, (data.solutions.value !== 0));
+	 addMatrixInfoLine(data.consistent.text, (data.consistent.value));
+	 
      });
 
 
@@ -117,6 +131,32 @@
 	 console.log("error resizing");
        }
      }
+
+     function addMatrixInfoLine(message, good) {
+        var info = $("#matrixInfo");
+       
+       var item = $("<li>", {
+	 class: "list-group-item " + (good ? "alert-success" : "alert-danger")
+       });
+       
+       var innerlist = $("<ul>", {
+	 class: "list-inline"
+       })
+       
+       innerlist.append($("<li>", {
+	 class: "glyphicon "  + ((good) ? "glyphicon-ok green" : "glyphicon-remove red")
+				  
+				  
+       }));
+       
+       innerlist.append($("<li>", {
+	 text: message
+       }));
+       item.append(innerlist);
+       
+       info.append(item);
+     }
+     
      /**
       * Get input and send if OK
       */
@@ -148,7 +188,7 @@
 	 $("#myAlert").fadeTo(200, 1);
          window.setTimeout(function() {
 	   $("#myAlert").fadeTo(300, 0).slideUp(300, function(){
-	     $(this).remove();
+	     $(this).hide();
 	   });
 	 }, 5000);
 	 /* $("#badInputModal").modal({
@@ -252,30 +292,17 @@
         </div>
       </td>
       </tr>
-    </table>
+      </table>
     </div>
     </div>
     
+    <ul id="matrixInfo" class="list-group">
+      
+    </ul>
     
-    <!-- Error -->
     
     
-    <div class="modal fade" id="badInputModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-	<div class="modal-content ">
-	  <div class="modal-header alert-danger">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="myModalLabel">Here be a warning!</h4>
-	  </div>
-	  <div class="modal-body ">
-            There seems to be a problem with your matrix data...
-	  </div>
-	  <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal">Okay</button>
-	  </div>
-	</div>
-      </div>
-    </div>
+    
     
     </div>
     <div id="footer">
