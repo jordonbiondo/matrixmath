@@ -143,8 +143,19 @@
        if (!error) {
 	 socket.emit("compute", {data: data});
        } else {
-	 alert("bad input");
-	 $('#').popover(options)
+	 //alert("bad input");
+	 
+	 $("#myAlert").fadeTo(200, 1);
+         window.setTimeout(function() {
+	   $("#myAlert").fadeTo(300, 0).slideUp(300, function(){
+	     $(this).remove();
+	   });
+	 }, 5000);
+	 /* $("#badInputModal").modal({
+	 show: true,
+	 keyboard: true,
+	 backdrop: true
+	 }); */
        }
      }
 
@@ -200,6 +211,12 @@
 	<td class="grid-unit">
 	<form id="inputMatrixForm">
           <p class="text-center">Input Data</p>
+	  <div id="myAlert" class="fade in alert alert-danger" hidden="true">
+            <button type="button" class="close"
+                    onclick="$('#myAlert').hide()"
+                    aria-hidden="true">&times;</button>
+            <strong>Oops!</strong> There is a problem with your matrix data!
+          </div>
           <table class="matrixTable" id="inputMatrix">
           </table>
 	  <button type="submit" hidden="true"/>
@@ -237,6 +254,27 @@
       </tr>
     </table>
     </div>
+    </div>
+    
+    
+    <!-- Error -->
+    
+    
+    <div class="modal fade" id="badInputModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+	<div class="modal-content ">
+	  <div class="modal-header alert-danger">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Here be a warning!</h4>
+	  </div>
+	  <div class="modal-body ">
+            There seems to be a problem with your matrix data...
+	  </div>
+	  <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Okay</button>
+	  </div>
+	</div>
+      </div>
     </div>
     
     </div>

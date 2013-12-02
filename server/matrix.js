@@ -363,7 +363,7 @@ var Matrix = function(data) {
 };
 
 /**
- * Returns a zero matrix of size n
+ * Returns a zero matrix of size n, or nxm
  */
 Matrix.zero = function(n, m) {
   if (!m) m = n;
