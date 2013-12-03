@@ -320,7 +320,8 @@ var Matrix = function(data) {
 
     // EX: if we have more than n vectors of Rn we now they are not lin ind
     if (this.width() > this.height()) return callback("Vectors are in R" + this.height() + 
-						      ", only a collection of " + this.height() +
+						      ", only a collection of at most " + 
+						      this.height() +
 						      " vectors can be linearly independent, " +
 						      "but you have " + this.width() +
 						      ". Therefore we know that at least one vector " +
