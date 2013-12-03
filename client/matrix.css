@@ -20,6 +20,9 @@
     margin-right: auto;
     max-width: 90%;
 }
+#matrixFormatTable td{
+    padding: 10px;
+}
 
 hr {
     border: none;
@@ -38,6 +41,7 @@ hr {
 /* } */
 
 .matrixTable {
+    margin: 20px;
     margin-left:auto;
     margin-right:auto;
     border-color: gray;
@@ -45,9 +49,14 @@ hr {
     border-width: 2px;
     border-top: none;
     border-bottom: none;
+    
 }
+
 #detArea {
+    padding: 10px;
     text-align:center;
+    margin-left:auto;
+    margin-right: auto;
     /* padding-left: 10px; */
     /* padding-right: 10px; */
 }
@@ -62,14 +71,18 @@ hr {
     /* margin-right: auto; */
 }
 
-#sizeForm .matrixInput {
+.matrixInput {
     width: 70px;
+    min-width: 70px;
+    max-width: 90px;
+
 }
 .matrixData {
     padding: 10px;
 }
 .matrixData input {
     min-width: 70px;
+    max-width: 90px;
 }
 .shadow {
    -moz-box-shadow:    inset 0 0 3px #000000;
@@ -114,4 +127,77 @@ body {
 
 .well {
     background-color: rgba(244, 244, 244, .3);
+}
+ 
+.spinner {
+  display: inline-block;
+  opacity: 0;
+  width: 0;
+
+  -webkit-transition: opacity 0.25s, width 0.25s;
+  -moz-transition: opacity 0.25s, width 0.25s;
+  -o-transition: opacity 0.25s, width 0.25s;
+  transition: opacity 0.25s, width 0.25s;
+}
+
+.has-spinner.active {
+  cursor:progress;
+}
+
+.has-spinner.active .spinner {
+  opacity: 1;
+  width: auto; /* This doesn't work, just fix for unkown width elements */
+}
+
+.has-spinner.btn-mini.active .spinner {
+    width: 10px;
+}
+
+.has-spinner.btn-small.active .spinner {
+    width: 13px;
+}
+
+.has-spinner.btn.active .spinner {
+    width: 16px;
+}
+
+.has-spinner.btn-large.active .spinner {
+    width: 19px;
+}
+
+.spin {
+  -webkit-animation:	spin .35s infinite linear;
+  -moz-animation:	spin .35s infinite linear;
+  -o-animation:		spin .35s infinite linear;
+  animation:		spin .35s infinite linear;
+  -webkit-transform-origin: 50% 58%;
+  transform-origin:50% 58%;
+  -ms-transform-origin:50% 58%; /* IE 9 */
+}
+
+@-moz-keyframes spin {
+  from {
+    -moz-transform: rotate(0deg);
+  }
+  to {
+    -moz-transform: rotate(360deg);
+  }
+}
+
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }

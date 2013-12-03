@@ -47,16 +47,16 @@ io.sockets.on('connection', function(socket) {
     var isLinInd = rref.isLinearlyIndependent(function(error) {
       return error;
     });
-    
     socket.emit("matrixFill", {
-      size: matrix.size(),
-      rref: rref,
-      det: matrix.det(),
-      inverse: matrix.inverse(),
-      linInd: isLinInd,
-      solutions: solutionsObj,
-      consistent: consistent
-    });
+	matrix: matrix,
+	size: matrix.size(),
+	rref: rref,
+	det: matrix.det(),
+	inverse: matrix.inverse(),
+	linInd: isLinInd,
+	solutions: solutionsObj,
+	consistent: consistent
+      });
   });
   
 });
