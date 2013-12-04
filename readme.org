@@ -1,2 +1,5 @@
 * Matrix math
-aw yeah
+A node.js web app for doing some fun linear algebra calculations on matrices!
+
+www.matrix-math.us
+
