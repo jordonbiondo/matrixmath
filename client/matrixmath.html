@@ -5,355 +5,141 @@
   -------------------------------------------------------------->
   <head>
     <!-- links -->
-    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+    <link href="//cdn.jsdelivr.net/foundation/5.0.2/css/foundation.min.css" rel="stylesheet">
+
     <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">
 
-    <link href="/client/matrix.css" rel="stylesheet">
+    <link  href="/client/matrix.css" rel="stylesheet">
+    <link  href="/client/gh-fork-ribbon.css" rel="stylesheet">
 
 
     <!-- scripts -->
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
     <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="/client/client.js"></script>
 
-    <script>
-
-     var defaultMatrixWidth = 3;
-       var defaultMatrixHeight = 3;
-       
-       var lastSendTime;
-       
-       var socket;
-
-       socket = io.connect();
-
-       socket.on("matrixFill", function(data) {
-	 if (new Date() - lastSendTime > (.4 * 1000)) {
-	   $('#computeSpinner').removeClass('spin');
-       } else {
-	   setTimeout(function() {
-	     $('#computeSpinner').removeClass('spin');
-	 }, 400);;
-       }
-       $("#matrixInfo").empty();
-       $("#detValue").val((data.det) ? data.det : "Not possible");
-       fillMatrixTable("#rrefMatrix", data.rref);
-       if (data.linInd === true) {
-	 addMatrixInfoLine("This column vectors are linearly independent!", true);
-       } else {
-	 addMatrixInfoLine("this column vectors are not linearly independent. " + data.linInd, false);
-       }
-	 if (data.inverse) {
-	   addMatrixInfoLine("This matrix is invertible because it " +
-			     "reduces to the identity matrix!", true);
-
-	   fillMatrixTable("#inverseMatrix", data.inverse);
-       } else {
-	   addMatrixInfoLine("This matrix is not invertible as it " +
-			     "does not reduce to an identity matrix.", false);
-	   spoofFillMatrix("#inverseMatrix", data.size.height, data.size.width);
-       }
-
-	 addMatrixInfoLine(data.solutions.text, (data.solutions.value !== 0));
-	 addMatrixInfoLine(data.consistent.text, (data.consistent.value));
-
-     });
-
-
-
-     /**
-      * Fill table with matrix
-      */
-     function fillMatrixTable(table, matrix) {
-       $(table).empty();
-       $.each(matrix.data, function(i, row) {
-         tRow = $('<tr>', {
-           class: 'matrixRow'
-         });
-         $.each(row, function(j, value) {
-
-           tRow.append($('<td>', {
-             text: (parseFloat(value)) ? (Math.round(parseFloat(value*1000)) / 1000) : value,
-             class: 'matrixData'
-           }));
-
-         });
-         $(table).append(tRow);
-       });
-     }
-
-     /**
-     * Fill output with empty data
-     */
-     function spoofFillMatrix(table, n, m) {
-       fillMatrixTable(table, {
-	 data: (function() {
-	   var result = new Array(n);
-	   for (var i = 0; i < n; i++) {
-	     var row = new Array(m);
-	     for (var j = 0; j < m; j++) {
-	       row[j] = "  ";
-	     }
-	     result[i] = row;
-	   }
-	   return result;
-	 })()
-       });
-     }
-
-     /**
-      * Resize matrix input
-      */
-     function resizeMatrixInputTable(height, width) {
-       var oldData = getInputData(true);
-       $("#inputMatrix").empty();
-       for (var i = 0; i < height; i++) {
-         tRow = $('<tr>', { class: 'matrixRow' });
-	 for (var j = 0; j < width; j++) {
-
-           tRow.append($('<td>', {
-	     class: 'matrixData',
-	     html: $("<input>", {
-	       class: "matrixInput form-control",
-               type: "number"
-             })
-	   }));
-	 }
-	 $("#inputMatrix").append(tRow);
-       }
-       spoofFillMatrix("#rrefMatrix", height, width);
-       spoofFillMatrix("#inverseMatrix", height, width);
-       fillInputMatrix(oldData);
-     }
-
-     /**
-      * Try resizing input matrix
-      */
-     function tryResizeInput() {
-       var n = parseInt($("#matrixHeightInput").val());
-       var m = parseInt($("#matrixWidthInput").val());
-       if ((!isNaN(n)) &&
-	   (!isNaN(m)) &&
-	   m > 0 &&
-	   n > 0) {
-	 resizeMatrixInputTable(n, m);
-       } else {
-	 console.log("error resizing");
-       }
-     }
-
-     function fillInputMatrix(data) {
-       $("#inputMatrix tr").each(function(i) {
-         var thisRow = [];
-         var tableData = $(this).find('td input');
-         if (tableData.length > 0) {
-           tableData.each(function(j, elm) {
-             elm.value = ( data  ? (data[i] ? data[i][j] : null) : null);
-           });
-         }
-       });
-     }
-
-     function addMatrixInfoLine(message, good) {
-       var info = $("#matrixInfo");
-
-       var item = $("<li>", {
-	 class: "list-group-item " + (good ? "alert-success" : "alert-danger")
-       });
-
-       var innerlist = $("<ul>", {
-	 class: "list-inline"
-       })
-
-       innerlist.append($("<li>", {
-	 class: "glyphicon "  + ((good) ? "glyphicon-ok green" : "glyphicon-remove red")
-
-
-       }));
-
-       innerlist.append($("<li>", {
-	 text: message
-       }));
-       item.append(innerlist);
-
-       info.append(item);
-     }
-
-     /**
-      * Get input matrix
-      */
-     function getInputData(ignoreErrors) {
-       var data = [];
-       var error = false;
-       $("#inputMatrix tr").each(function() {
-         if (error && !ignoreErrors) return false;
-         var thisRow = [];
-         var tableData = $(this).find('td input');
-         if (tableData.length > 0) {
-           tableData.each(function() {
-             var val = parseFloat($(this).val());
-             if (isNaN(val)) {
-               error = true;
-             } else {
-               thisRow.push(val);
-             }
-           });
-           data.push(thisRow);
-         }
-       });
-       if (error && !ignoreErrors) return null;
-       return data;
-     }
-
-
-     /**
-      * Get input and send if OK
-      */
-     function trySendMatrix() {
-       var data = getInputData()
-       var error = data === null;
-
-       if (!error) {
-	 $('#computeSpinner').addClass('spin');
-	 lastSendTime = new Date();
-	 socket.emit("compute", {data: data});
-       } else {
-	 //alert("bad input");
-
-	 $("#myAlert").fadeTo(200, 1);
-         window.setTimeout(function() {
-	   $("#myAlert").fadeTo(300, 0).slideUp(300, function(){
-	     $(this).hide();
-	   });
-	 }, 5000);
-	 /* $("#badInputModal").modal({
-	 show: true,
-	 keyboard: true,
-	 backdrop: true
-	 }); */
-       }
-     }
-
-     $(document).ready(function() {
-       resizeMatrixInputTable(defaultMatrixHeight, defaultMatrixWidth);
-	 $("#sizeForm").submit(function() {
-	   tryResizeInput();
-	   return false;
-       });
-	 $("#matrixWidthInput, #matrixHeightInput").change(function() {
-	   tryResizeInput();
-       });
-         $("#inputMatrixForm").submit(function() {
-           trySendMatrix();
-           return false;
-       });
-
-     });
-
-
-
-    </script>
+    <title> Matrix Analyzer </title>
+    
   </head>
 
   <!------------------------------------------------------------
   -- Body
   -------------------------------------------------------------->
   <body>
-    <div id="allcontent">
-      <div class="page-header">
-	<h1>Matrix Analyser <small>Computes the RREF, inverse, and determinant of any n&times;m matrix</small></h1>
-
+    <div class="github-fork-ribbon-wrapper right show-for-medium-up">
+      <div class="github-fork-ribbon">
+	<a href="https://github.com/jordonbiondo/matrixmath">Fork me on GitHub</a>
       </div>
-      <div class="well ">
-	<div class="well shadow">
-	  <form id="sizeForm" class="form-inline">
-            size:
-            <input id="matrixHeightInput"
-		   class="matrixInput form-control"
-		   placeholder="3"
-		   type="number">
-            &times;
-            <input id="matrixWidthInput"
-		   class="matrixInput form-control "
-		   placeholder="3"
-		   type="number">
-            <button type="submit"
-                    class=".btn btn btn-primary"
-                    id="matrixResize"> Resize</button>
-	  </form>
-	</div>
-	
-        <div id="myAlert" class="fade in alert alert-danger" hidden="true">
-          <button type="button" class="close"
-                  onclick="$('#myAlert').hide()"
-                  aria-hidden="true">&times;</button>
-          <strong>Oops!</strong> There is a problem with your matrix data!
-        </div>
-	
-        <div class="well table-responsive shadow">
-	  <table id="matrixFormatTable">
-	    <tr>
-	      <td>
-		<form id="inputMatrixForm">
-		  <p class="text-center">Input Matrix: A</p>
-		  <table class="matrixTable" id="inputMatrix">
-		  </table>
-		  <button type="submit" hidden="true"/>
-		</form>
-	      </td>
+    </div>
 
-	      <td>
-		<p class="text-center">RREF</p>
-		<table class="matrixTable" id="rrefMatrix">
+    <div id="allcontent">
+      <div class="row">
+	<h1 class="large-6 large-offset-1 columns">Matrix Analyzer</h1>
+      </div>
+      <div class="row">
+	<h4 class="large-offset-1 columns">
+	  Computes the RREF, inverse, and determinant of any n&times;m matrix
+	</h4>
+      </div>
+
+      <div class="row">
+	<div class="panel large-10 large-offset-1 columns">
+
+	  <h3 class="">Input</h3>
+	  <hr/>
+
+	  <!-- Size area -->
+	  <div class="row">
+	    <div class="large-4 columns large-offset-4">
+	      <form id="sizeForm" >
+		<div class="row">
+		  <div class="small-2 large-2 columns">
+		    <h4 class="centerToInput">Size</h4>
+		  </div>
+		  <div class="small-4 large-4 columns">
+		    <input type="text" placeholder="3" id="matrixHeightInput"/>
+		  </div>
+		  <div class="small-2 large-2 columns text-center">
+		    <h4 class="centerToInput">
+		      &times;
+		    </h4></div>
+		  <div class="small-4 large-4 columns">
+		    <input type="text" placeholder="3" id="matrixWidthInput"/>
+		  </div>
+		</div>
+	      </form>
+	    </div>
+	  </div><!-- size area  -->
+
+
+	  <!-- My Alert -->
+	  <div class="row">
+	    <div data-alert id="myAlert" class="hide large-6 large-offset-3 alert-box  fade">
+	      <strong>Oops!</strong> There is a problem with your matrix data!
+	      <a href="#" onclick="$('#myAlert').hide()" class="close">&times;</a>
+	    </div>
+	  </div>
+
+	  <div class="row">
+	    <div class="large-6  columns text-center">
+	      <form id="inputMatrixForm">
+		<h4 class="text-center">Input Matrix: A</h4>
+		<table class="matrixTable" id="inputMatrix">
 		</table>
-	      </td>
+	      </form>
+	    </div>
 
-	      <td>
-		<p class="text-center">A<sup>-1</sup> (inverse)</p>
-		<table class="matrixTable" id="inverseMatrix">
-		</table>
-	      </td>
+	    <div class="large-6 large-offset-0 columns"  id="computeButtonDiv">
 
-	      <td >
-		<div id="detArea">
-		<p class="text-center">Determinant</p>
-		<input class="text-center matrixInput"
+	      <button id="computeButton"  class="has-spinner middle" onclick="trySendMatrix()">
+		<span id="computeSpinner" class="glyphicon glyphicon-refresh"></span>
+		Compute
+	      </button>
+	    </div>
+	  </div>
+	  <h3 class="">Output</h3>
+	  <hr/>
+	  <div class="row">
+	    <div class="large-4 columns text-center">
+	      <h4 class="text-center">RREF</h4>
+	      <table class="matrixTable" id="rrefMatrix">
+	      </table>
+	    </div>
+
+	    <div class="large-4 columns text-center">
+	      <h4 class="text-center">A<sup>-1</sup> (inverse)</h4>
+	      <table class="matrixTable" id="inverseMatrix">
+	      </table>
+	    </div>
+
+	    <div class="large-4 columns text-center">
+	      <div id="detArea">
+		<h4 class="text-center">Determinant</h4>
+		<input class="text-center"
 		       id="detValue"
 		       disabled="true"
-		       readonly="readonly"/>
-		</div>
-	      </td>
+		readonly="readonly"/>
+	      </div>
+	    </div>
+	  </div>
 
-	      <td>
-		<div id="computeButtonDiv">
-		  <button id="computeButton" class="btn btn-primary has-spinner" onclick="trySendMatrix()">
-		    <span id="computeSpinner" class="glyphicon glyphicon-refresh"></span>
-		    Compute
-		  </button>
-		</div>
-	      </td>
-	    </tr>
-	  </table>
+	  <ul id="matrixInfo" class="list-group">
+
+	  </ul>
+	</div>
+      </div>
+      <div id="footer">
+	<div class="container">
+	  <p class= "muted credit"> Authors:
+	    <a href="http://www.github.com/jordonbiondo">Jordon Biondo</a>,
+	    <a href="https://github.com/barrebre">Brett Barrett</a></p>
 	</div>
       </div>
 
-      <ul id="matrixInfo" class="list-group">
-
-      </ul>
-
-
-
-
-
-    </div>
-    <div id="footer">
-      <div class="container">
-        <p class= "muted credit"> Authors:
-          <a href="http://www.github.com/jordonbiondo">Jordon Biondo</a>,
-          <a href="https://github.com/barrebre">Brett Barrett</a></p>
-      </div>
-    </div>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/foundation/5.0.2/js/foundation.min.js"/>
   </body>
 
 </html>
