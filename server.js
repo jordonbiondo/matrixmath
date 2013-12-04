@@ -44,7 +44,7 @@ io.configure(function () {
 });
 
 // serve all client contents statically
-if (argv.logger) app.use(express.logger());
+app.use(express.logger());
 
 // serve all client contents statically
 app.use('/client', express.static(__dirname + '/client'));
@@ -53,6 +53,9 @@ app.get('/', function(req, res) { res.sendfile(__dirname + '/client/matrixmath.h
 server.listen(process.env.PORT || 3000);
 
 io.sockets.on('connection', function(socket) {
+  
+  var address = socket.handshake.address;
+  console.log("New connection from " + address.address + ":" + address.port);
   
   socket.on('compute', function(matrixData) {
     try {
