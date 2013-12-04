@@ -43,7 +43,7 @@ var _ = require('underscore');
 var Matrix = function(data) {
   
   /**
-   * Check size on init
+   * Check size on init, ensure that each row (inner array) is the same size.
    */
   if (data &&
       data[0].length === data.map(function(row) { return row.length;}).reduce(function(a, b) {
@@ -54,12 +54,12 @@ var Matrix = function(data) {
 
   
   /**
-   * Private methods, awww yissss
+   * Internal methods, not actually hidden.
    */
   this.hidden = new (function() {
 
     /**
-     * Is array all zeros?
+     * Returns true when ROW contains all zeros
      */
     this.isZeroRow = function(row) {
       for (var i = 0; i < row.length; i++) if (row[i] !== 0) return false;
@@ -67,7 +67,7 @@ var Matrix = function(data) {
     };
 
     /**
-     * Is row: 0 ... 0 b ?
+     * Returns true when ROW is in the form 0 ... 0 b 
      */
     this.isNoSolutionRow = function(row) {
       for (var i  = 0; i < row.length -1 ; i++) if (row[i] !== 0) return false;
@@ -78,7 +78,7 @@ var Matrix = function(data) {
 
   
   /**
-   * Copy this matrix
+   * Return a non referenced copy of the current matrix 
    */
   this.copy = function() {
     return new Matrix(this.data.map(function(row) {
@@ -86,8 +86,10 @@ var Matrix = function(data) {
     }));
   };
 
+
   /**
-   * 
+   * Returns true when this equals OTHER.
+   * They must be the same size and have the same values
    */
   this.equals = function(other) {
     var context = this;
@@ -103,16 +105,18 @@ var Matrix = function(data) {
       })();
   };
   
+
   /**
-   * Height
+   * Return the height of the matrix
    */
   this.height = function() {
     if (!data) return 0;
     else return this.data.length;
   };
 
+
   /**
-   * Width
+   * Return the width of the matrix
    */
   this.width = function() {
     if (!data) return 0;
@@ -133,8 +137,9 @@ var Matrix = function(data) {
     };
   };
   
+
   /**
-   * Return this matrix scaled by S
+   * Return this matrix multiplied by scalar S
    */
   this.scaled = function(s) {
     if (!s) return this.copy();
@@ -143,12 +148,14 @@ var Matrix = function(data) {
     }));
   };
   
+
   /**
    * Return this matrix * -1
    */
   this.negated = function() {
     return this.scaled(-1);
   };
+
   
   /**
    * Return this matrix + otherMatrix
@@ -175,8 +182,11 @@ var Matrix = function(data) {
     return this.added(other.negated());
   };
 
+
   /**
    * Returns this matrix * other
+   *
+   * NOT IMPLEMENTED (no need yet)
    */
   this.multiplied = function(other) {
     if (this.width() != other.height()) return null;
@@ -186,24 +196,20 @@ var Matrix = function(data) {
   
   /**
    * Return the rref of this
-   * Modified from http://rosettacode.org/wiki/Reduced_row_echelon_form#JavaScript
    */
   this.rref = function() {
     var copied = this.copy();
-    var lead = 0;
-    for (var r = 0; r < copied.height(); r++) {
-      if (this.width() <= lead) {
-	return copied;
-      }
+    var leading = 0;
+    var r = 0;
+    for (r = 0; r < copied.height(); r++) {
+      if (this.width() <= leading) return copied;
       var i = r;
-      while (copied.data[i][lead] === 0) {
+      while (copied.data[i][leading] === 0) {
 	i++;
 	if (copied.height() === i) {
 	  i = r;
-	  lead++;
-	  if (this.width() === lead) {
-	    return copied;
-	  }
+	  leading++;
+	  if (this.width() === leading) return copied;
 	}
       }
       
@@ -211,19 +217,20 @@ var Matrix = function(data) {
       copied.data[i] = copied.data[r];
       copied.data[r] = temp;
       
-      var val = copied.data[r][lead];
-      for (var j = 0; j < copied.width(); j++) {
-	copied.data[r][j] /= val;
-      }
+      var val = copied.data[r][leading];
+
+      copied.data[r] = copied.data[r].map(function(x) {
+	return x / val;
+      });
       
       for (var i = 0; i < copied.height(); i++) {
 	if (i === r) continue;
-	val = copied.data[i][lead];
+	val = copied.data[i][leading];
 	for (var j = 0; j < copied.width(); j++) {
 	  copied.data[i][j] -= val * copied.data[r][j];
 	}
       }
-      lead++;
+      leading++;
     }
     return copied;
   };
@@ -237,7 +244,7 @@ var Matrix = function(data) {
   };
   
   /**
-   * Is this matrix row equivalent to the other 
+   * Is this matrix row equivalent to the other, checks the rref form of both for equivality
    */
   this.isRowEquivalent = function(other) {
     if (!this.size().equals(other.size)) return false;
@@ -282,16 +289,18 @@ var Matrix = function(data) {
 
 
   /**
-   * Return the inverse if possible
+   * Return the inverse if possible, else null
    */
   this.inverse = function() {
     if (! this.invertible()) return null;
     var origSize = this.height();
     var comp = this.copy();
     var ident = Matrix.identity(origSize);
+    // concatenate the rows of the identity matrix to the rows of this
     for (var i = 0; i < origSize; i++) {
       comp.data[i] = comp.data[i].concat(ident.data[i]);
     }
+    // perform gaussian elimination then grab the right half of the matrix 
     return new Matrix(comp.rref().data.map(function(row) {
       return row.slice(origSize);
     }));
@@ -338,6 +347,8 @@ var Matrix = function(data) {
 
   /**
    * Get span, fill me in
+   *
+   * NOT IMPLEMENTED (yet)
    */
   this.span = function() {
     if (this.isSquare()) {
@@ -348,19 +359,20 @@ var Matrix = function(data) {
     return "foobar";
   };
 
+
   /**
    * Test for linear independence
    */
   this.isLinearlyIndependent = function(callback) {
 
     // EX: if we have more than n vectors of Rn we now they are not lin ind
-    if (this.width() > this.height()) return callback("Vectors are in R" + this.height() + 
-						      ", only a collection of at most " + 
+    if (this.width() > this.height()) return callback("The vectors of this matrix are in R" + this.height() + 
+						      ", so only a set of at most " + 
 						      this.height() +
 						      " vectors can be linearly independent, " +
-						      "but you have " + this.width() +
+						      "but this has " + this.width() +
 						      ". Therefore we know that at least one vector " +
-						      "can be made by a linear combination " +
+						      "can be created by a linear combination " +
 						      "of the others.");
       
       
@@ -378,7 +390,7 @@ var Matrix = function(data) {
     // count the number of rows containing only 0
       var zeroRows = _.filter(reduced.data, this.hidden.isZeroRow).length;
       if (zeroRows > (reduced.height() - this.width())) {
-	return callback("At least one vector can be made by a linear combination of the others.");
+	return callback("At least one vector can be created by a linear combination of the others.");
       } else {
 	return true;
       }
@@ -396,7 +408,8 @@ var Matrix = function(data) {
     var eqN = this.height();
     // count the number of rows matching [0...0 b], if more than 0, return 0
     if (_.filter(reduced.data, this.hidden.isNoSolutionRow).length > 0) return 0;
-    // else count the number of rows matching [0 ... 0], if more than 0, return infinity
+    // else count the number of rows matching [0 ... 0], if more than the number
+    // of equations minus the number of variables in the system, return infinity
     else if (_.filter(reduced.data, this.hidden.isZeroRow).length > (eqN - varN)) return Infinity;
     // else there is a unique solution!
     else return 1;
@@ -426,8 +439,10 @@ var Matrix = function(data) {
   
 };
 
+
 /**
- * Returns a zero matrix of size n, or nxm
+ * Generates a n x m matrix of all zeros, if m is not given, a n sized
+ * sqare matrix will be created
  */
 Matrix.zero = function(n, m) {
   if (!m) m = n;
@@ -443,8 +458,9 @@ Matrix.zero = function(n, m) {
   }
 };
 
+
 /**
- * Return an identity matrix of size N
+ * Generates an identity matrix of size n
  */
 Matrix.identity = function(n) {
   if (n > 0) {
@@ -456,9 +472,15 @@ Matrix.identity = function(n) {
   }
 };
 
+
 /**
  * Exports
  */
 module.exports = {
   Matrix: Matrix
 };
+
+//
+//matrix.js ends here
+
+/* matrix.js ends here */
