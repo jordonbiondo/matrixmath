@@ -239,3 +239,10 @@ var result = new mm.Matrix([[1, 1, 1, 2],
 });
 
 if (result) console.log(result);
+
+
+console.log(new mm.Matrix([[1, 2],
+			   [3, 4]]).lup().toString());
+console.log(new mm.Matrix([[1, 2, 3],
+                           [1, 3, 2],
+                           [4, 3, 2]]).det());

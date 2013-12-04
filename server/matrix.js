@@ -345,6 +345,68 @@ var Matrix = function(data) {
   };
 
 
+  this.lup = function() {
+    var LU = this.copy().data;
+    var m = this.width();
+    var n = this.height();
+    var piv = new Array(m);
+    var pivSign = 1;
+    var i;
+    var j;
+    var k;
+    for (i = 0; i < m; i++) piv[i] = i;
+    var iRow;
+    var jCol = new Array(m).map(function() { return 0; });
+
+    for (j = 0; j < n; j++) {
+      
+      jCol = LU.map(function(row) { return row[j]; });
+      
+      for (i = 0; i < m; i++) {
+	var kmax = Math.min(i, j);
+	var s = 0.0;
+	for (k = 0; k < kmax; k++) s += LU[i][k] * jCol[k];
+	jCol[i] -= s;
+	LU[i][j] = jCol[i];
+      }
+      var p = j;
+      for (i = j+1; i < m; i++) {
+        if (Math.abs(jCol[i]) > Math.abs(jCol[p])) {
+          p = i;
+        }
+      }
+      if (p != j) {
+        for (k = 0; k < n; k++) {
+          var t = LU[p][k];
+	  LU[p][k] = LU[j][k];
+	  LU[j][k] = t;
+        }
+        k = piv[p]; piv[p] = piv[j]; piv[j] = k;
+        pivSign = -pivSign;
+      }
+      
+      // Compute multipliers.
+      
+      if (j < m & LU[j][j] != 0.0) {
+        for (i = j+1; i < m; i++) {
+          LU[i][j] /= LU[j][j];
+        }
+      }
+      
+    }
+    var X = Matrix.zero(n,n);
+    for (var i = 0; i < n; i++) {
+      for (var j = 0; j < n; j++) {
+        if (i <= j) {
+          X.data[i][j] = LU[i][j];
+        } else {
+          X.data[i][j] = 0.0;
+        }
+      }
+    }
+    return X;
+  };
+  
   /**
    * Get span, fill me in
    *
