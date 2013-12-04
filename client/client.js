@@ -50,9 +50,9 @@ socket.on("matrixFill", function(data) {
   $("#detValue").val((data.det) ? data.det : "Not possible");
   fillMatrixTable("#rrefMatrix", data.rref);
   if (data.linInd === true) {
-    addMatrixInfoLine("The column vectors of this matrixare linearly independent! ", true);
+    addMatrixInfoLine("The column vectors of this matrix are linearly independent! ", true);
   } else {
-    addMatrixInfoLine("The column vectors of this matrixare not linearly independent. "
+    addMatrixInfoLine("The column vectors of this matrix are not linearly independent. "
 		      + data.linInd, false);
   }
   if (data.inverse) {
@@ -182,7 +182,7 @@ function addMatrixInfoLine(message, good) {
   }));
 
   innerlist.append($("<li>", {
-    text: message
+    text: message,
   }));
   item.append(innerlist);
 
