@@ -46,6 +46,11 @@ socket.on("matrixFill", function(data) {
       $('#computeSpinner').removeClass('spin');
     }, 400);;
   }
+  
+  $('html, body').animate({
+    scrollTop: $("#outputStart").offset().top
+  }, 1000);
+  
   $("#matrixInfo").empty();
   $("#detValue").val((data.det) ? data.det : "Not possible");
   fillMatrixTable("#rrefMatrix", data.rref);
