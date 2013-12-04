@@ -36,13 +36,13 @@
 	     $('#computeSpinner').removeClass('spin');
 	 }, 400);;
        }
-         $("#matrixInfo").empty();
-	 $("#detValue").val((data.det) ? data.det : "Not possible");
-	 fillMatrixTable("#rrefMatrix", data.rref);
-	 if (data.linInd === true) {
-	   addMatrixInfoLine("This matrix is linearly independent!", true);
+       $("#matrixInfo").empty();
+       $("#detValue").val((data.det) ? data.det : "Not possible");
+       fillMatrixTable("#rrefMatrix", data.rref);
+       if (data.linInd === true) {
+	 addMatrixInfoLine("This column vectors are linearly independent!", true);
        } else {
-	   addMatrixInfoLine("this matrix is not linearly independent. " + data.linInd, false);
+	 addMatrixInfoLine("this column vectors are not linearly independent. " + data.linInd, false);
        }
 	 if (data.inverse) {
 	   addMatrixInfoLine("This matrix is invertible because it " +
