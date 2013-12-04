@@ -50,6 +50,8 @@ var Matrix = function(data) {
 	return a > b ? a : b;
       })) {
     this.data = data;
+  } else {
+    this.data = null;
   }
 
   
