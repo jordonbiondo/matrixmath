@@ -84,7 +84,7 @@ socket.on("matrixFill", function(data) {
 function fillMatrixTable(table, matrix) {
   $(table).empty();
   $.each(matrix.data, function(i, row) {
-    tRow = $('<tr>', {
+    var tRow = $('<tr>', {
       class: 'matrixRow'
     });
     $.each(row, function(j, value) {
@@ -125,7 +125,7 @@ function resizeMatrixInputTable(height, width) {
   var oldData = getInputData(true);
   $("#inputMatrix").empty();
   for (var i = 0; i < height; i++) {
-    tRow = $('<tr>', { class: 'matrixRow' });
+    var tRow = $('<tr>', { class: 'matrixRow' });
     for (var j = 0; j < width; j++) {
 
       tRow.append($('<td>', {
@@ -187,7 +187,7 @@ function addMatrixInfoLine(message, good) {
   }));
 
   innerlist.append($("<li>", {
-    text: message,
+    text: message
   }));
   item.append(innerlist);
 
@@ -225,7 +225,7 @@ function getInputData(ignoreErrors) {
  * Get input and send if OK
  */
 function trySendMatrix() {
-  var data = getInputData()
+  var data = getInputData();
   var error = data === null;
 
   if (!error) {
