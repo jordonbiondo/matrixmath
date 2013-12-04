@@ -52,7 +52,7 @@ socket.on("matrixFill", function(data) {
   }, 1000);
   
   $("#matrixInfo").empty();
-  $("#detValue").val((data.det) ? data.det : "Not possible");
+  $("#detValue").val((data.det !== null) ? data.det : "Not possible");
   fillMatrixTable("#rrefMatrix", data.rref);
   if (data.linInd === true) {
     addMatrixInfoLine("The column vectors of this matrix are linearly independent! ", true);
