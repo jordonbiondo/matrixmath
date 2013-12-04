@@ -38,6 +38,15 @@ var socket;
 
 socket = io.connect();
 
+socket.on("error", function(error) {
+  $("#myErrorAlert").fadeTo(200, 1);
+  console.log(error.text, error.type, error.message);
+  $('html, body').animate({
+    scrollTop: $("#myErrorAlert").offset().top
+  }, 1000);
+});
+
+
 socket.on("matrixFill", function(data) {
   if (new Date() - lastSendTime > (.4 * 1000)) {
     $('#computeSpinner').removeClass('spin');

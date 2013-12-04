@@ -55,30 +55,41 @@ server.listen(process.env.PORT || 3000);
 io.sockets.on('connection', function(socket) {
   
   socket.on('compute', function(matrixData) {
-    var matrix = new mm.Matrix(matrixData.data);
-    var rref = matrix.rref();
-    
-    var solutions = rref.numberOfSolutions();
-    var solutionsObj = {
-      value: solutions,
-      text: "The system of equations defined by the rows has " + (function(count) {
-	if (count === Infinity) return "infinitely many solutions.";
-	else if (count === 0) return "no solution.";
-	else return "a unique solution.";
-      })(solutions)
-    };
-    
-    var consistent = {
-      value: (solutions !== 0),
-      text: "This matrix defines a" +
-	((solutions !== 0) ? " consistent" : "n inconsistent") +
-	" system of equations."
-    };
-    
-    var isLinInd = rref.isLinearlyIndependent(function(error) {
-      return error;
-    });
-    socket.emit("matrixFill", {
+    try {
+      
+      if (! (matrixData.data &&
+	     matrixData.data[0] !== null &&
+	     matrixData.data[0][0] !== null)) {
+	throw new Error("Data given is not a valid matrix.");
+      }
+      var matrix = new mm.Matrix(matrixData.data);
+      
+      if (matrix.data === null) {
+	throw new Error("Cound not create matrix from given data.");
+      }
+
+      var rref = matrix.rref();
+      var solutions = rref.numberOfSolutions();
+      var solutionsObj = {
+	value: solutions,
+	text: "The system of equations defined by the rows has " + (function(count) {
+	  if (count === Infinity) return "infinitely many solutions.";
+	  else if (count === 0) return "no solution.";
+	  else return "a unique solution.";
+	})(solutions)
+      };
+      
+      var consistent = {
+	value: (solutions !== 0),
+	text: "This matrix defines a" +
+	  ((solutions !== 0) ? " consistent" : "n inconsistent") +
+	  " system of equations."
+      };
+      
+      var isLinInd = rref.isLinearlyIndependent(function(error) {
+	return error;
+      });
+      socket.emit("matrixFill", {
 	matrix: matrix,
 	size: matrix.size(),
 	rref: rref,
@@ -88,6 +99,12 @@ io.sockets.on('connection', function(socket) {
 	solutions: solutionsObj,
 	consistent: consistent
       });
-  });
-  
+    } catch(error) {
+      socket.emit("error", {
+	text: "There was an error computing your matrix...",
+	type: error.name,
+	msg: error.message
+      });
+    }
+    });
 });
