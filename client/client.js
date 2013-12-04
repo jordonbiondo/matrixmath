@@ -245,6 +245,7 @@ function trySendMatrix() {
 
 $(document).ready(function() {
   $('#myAlert').hide();
+  $('#myErrorAlert').hide();
   resizeMatrixInputTable(defaultMatrixHeight, defaultMatrixWidth);
   $("#sizeForm").submit(function() {
     tryResizeInput();
