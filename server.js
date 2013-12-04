@@ -31,7 +31,7 @@ io.sockets.on('connection', function(socket) {
     var solutions = rref.numberOfSolutions();
     var solutionsObj = {
       value: solutions,
-      text: "As an augmented matrix, this system has " + (function(count) {
+      text: "The system of equations defined by the rows has " + (function(count) {
 	if (count === Infinity) return "infinitely many solutions.";
 	else if (count === 0) return "no solution.";
 	else return "a unique solution.";
@@ -40,8 +40,9 @@ io.sockets.on('connection', function(socket) {
     
     var consistent = {
       value: (solutions !== 0),
-      text: "As an augmented matrix, this system is " +
-	((solutions !== 0) ? "consistent" : "inconsistent") + "."
+      text: "This matrix defines a" +
+	((solutions !== 0) ? " consistent" : "n inconsistent") +
+	" system of equations."
     };
     
     var isLinInd = rref.isLinearlyIndependent(function(error) {
