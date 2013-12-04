@@ -50,18 +50,18 @@ socket.on("matrixFill", function(data) {
   $("#detValue").val((data.det) ? data.det : "Not possible");
   fillMatrixTable("#rrefMatrix", data.rref);
   if (data.linInd === true) {
-    addMatrixInfoLine("This column vectors are linearly independent!", true);
+    addMatrixInfoLine("The column vectors are linearly independent! ", true);
   } else {
-    addMatrixInfoLine("this column vectors are not linearly independent. " + data.linInd, false);
+    addMatrixInfoLine("The column vectors are not linearly independent. " + data.linInd, false);
   }
   if (data.inverse) {
     addMatrixInfoLine("This matrix is invertible because it " +
-                      "reduces to the identity matrix!", true);
+                      "reduces to the identity matrix.", true);
 
     fillMatrixTable("#inverseMatrix", data.inverse);
   } else {
     addMatrixInfoLine("This matrix is not invertible as it " +
-                      "does not reduce to an identity matrix.", false);
+                      "cannot be reduced to an identity matrix.", false);
     spoofFillMatrix("#inverseMatrix", data.size.height, data.size.width);
   }
 

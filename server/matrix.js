@@ -366,7 +366,8 @@ var Matrix = function(data) {
   this.isLinearlyIndependent = function(callback) {
 
     // EX: if we have more than n vectors of Rn we now they are not lin ind
-    if (this.width() > this.height()) return callback("The vectors of this matrix are in R" + this.height() + 
+    if (this.width() > this.height()) return callback("The vectors of this matrix are in R" +
+						      this.height() + 
 						      ", so only a set of at most " + 
 						      this.height() +
 						      " vectors can be linearly independent, " +
