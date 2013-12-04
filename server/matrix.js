@@ -357,11 +357,12 @@ var Matrix = function(data) {
     // assuming this is set up as an augmented matrix
     // get the rref form
     var reduced = this.rref();
-    
+    var varN = this.width() -1;
+    var eqN = this.height();
     // count the number of rows matching [0...0 b], if more than 0, return 0
     if (_.filter(reduced.data, this.hidden.isNoSolutionRow).length > 0) return 0;
     // else count the number of rows matching [0 ... 0], if more than 0, return infinity
-    else if (_.filter(reduced.data, this.hidden.isZeroRow).length > 0) return Infinity;
+    else if (_.filter(reduced.data, this.hidden.isZeroRow).length > (eqN - varN)) return Infinity;
     // else there is a unique solution!
     else return 1;
   };
