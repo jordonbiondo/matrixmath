@@ -103,7 +103,7 @@ io.sockets.on('connection', function(socket) {
 	consistent: consistent
       });
     } catch(error) {
-      socket.emit("error", {
+      socket.emit("matrixError", {
 	text: "There was an error computing your matrix...",
 	type: error.name,
 	msg: error.message

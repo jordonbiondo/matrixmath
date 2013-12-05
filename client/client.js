@@ -38,7 +38,7 @@ var socket;
 
 socket = io.connect();
 
-socket.on("error", function(error) {
+socket.on("matrixError", function(error) {
   $("#myErrorAlert").fadeTo(200, 1);
   console.log(error.text, error.type, error.message);
   $('html, body').animate({
@@ -267,7 +267,7 @@ $(document).ready(function() {
     trySendMatrix();
     return false;
   });
-
+  $('#myErrorAlert').hide();
 });
 
 
