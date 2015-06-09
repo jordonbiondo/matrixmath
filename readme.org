@@ -1,5 +1,9 @@
 * Matrix math
+
+http://matrixmath.herokuapp.com
+
 A node.js web app for doing some fun linear algebra calculations on matrices!
 
-www.matrix-math.us
+
+
 
